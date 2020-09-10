@@ -41,6 +41,7 @@ func main() {
 	router.GET("/", renderHome)
 	router.GET("/:blockchain/:network", renderNetwork)
 	router.GET("/:blockchain/:network/block/:id", renderBlock)
+	router.GET("/:blockchain/:network/account/:address", renderAccountBalance)
 
 	log.Fatal(router.Run(opts.listenAddr))
 }
@@ -141,4 +142,38 @@ func renderBlock(c *gin.Context) {
 		"network": netId,
 		"block":   block.Block,
 	})
+}
+
+func renderAccountBalance(c *gin.Context) {
+	client := c.MustGet("client").(*client.APIClient)
+
+	netId := &types.NetworkIdentifier{
+		Blockchain: c.Param("blockchain"),
+		Network:    c.Param("network"),
+	}
+
+	balance, _, err := client.AccountAPI.AccountBalance(
+		context.Background(),
+		&types.AccountBalanceRequest{
+			NetworkIdentifier: netId,
+			AccountIdentifier: &types.AccountIdentifier{
+				Address: c.Param("address"),
+			},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	data := gin.H{
+		"network": netId,
+		"balance": balance,
+	}
+
+	switch c.NegotiateFormat(gin.MIMEHTML, gin.MIMEJSON) {
+	case gin.MIMEHTML:
+		c.HTML(200, "account.html", data)
+	case gin.MIMEJSON:
+		c.JSON(200, data)
+	}
 }

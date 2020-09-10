@@ -1,0 +1,34 @@
+{{ template "header.html" }}
+
+<h1>{{ .network.Blockchain }} - {{ .network.Network }}</h1>
+
+<h3>Account Balance</h3>
+<div class="card">
+  <div class="card-body">
+    <h4>Balances</h4>
+    <ul>
+      {{ range .balance.Balances }}
+        <li>{{ .Value }} {{ .Currency.Symbol }}</li>
+      {{ end }}
+    </ul>
+
+    <hr/>
+
+    <h4>Block</h4>
+    {{ with .balance.BlockIdentifier }}
+      <div>Hash: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
+      <div>Index: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+    {{ end }}
+
+    <hr/>
+
+    <h4>Metadata</h4>
+    {{ if len .balance.Metadata }}
+      {{ range $key, $value := .balance.Metadata }}
+        <div>{{ $key }} = {{ $value }}</div>
+      {{ end }}
+    {{ else }}
+      <p>No metadata available</p>
+    {{ end }}
+  </div>
+</div>

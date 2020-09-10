@@ -63,7 +63,7 @@
             <td>{{ .Status }}</td>
             <td>{{ .Type }}</td>
             <td>{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}</td>
-            <td>{{ .Account.Address }}</td>
+            <td><a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a></td>
           </tr>
           {{ end }}
         </tbody>
