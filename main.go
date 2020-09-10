@@ -111,7 +111,7 @@ func renderNetwork(c *gin.Context) {
 func renderBlock(c *gin.Context) {
 	client := c.MustGet("client").(*client.APIClient)
 
-	netId := &types.NetworkIdentifier{
+	netID := &types.NetworkIdentifier{
 		Blockchain: c.Param("blockchain"),
 		Network:    c.Param("network"),
 	}
@@ -130,7 +130,7 @@ func renderBlock(c *gin.Context) {
 	block, _, err := client.BlockAPI.Block(
 		context.Background(),
 		&types.BlockRequest{
-			NetworkIdentifier: netId,
+			NetworkIdentifier: netID,
 			BlockIdentifier:   blockID,
 		},
 	)
@@ -139,7 +139,7 @@ func renderBlock(c *gin.Context) {
 	}
 
 	c.HTML(200, "block.html", gin.H{
-		"network": netId,
+		"network": netID,
 		"block":   block.Block,
 	})
 }
@@ -147,7 +147,7 @@ func renderBlock(c *gin.Context) {
 func renderAccountBalance(c *gin.Context) {
 	client := c.MustGet("client").(*client.APIClient)
 
-	netId := &types.NetworkIdentifier{
+	netID := &types.NetworkIdentifier{
 		Blockchain: c.Param("blockchain"),
 		Network:    c.Param("network"),
 	}
@@ -155,7 +155,7 @@ func renderAccountBalance(c *gin.Context) {
 	balance, _, err := client.AccountAPI.AccountBalance(
 		context.Background(),
 		&types.AccountBalanceRequest{
-			NetworkIdentifier: netId,
+			NetworkIdentifier: netID,
 			AccountIdentifier: &types.AccountIdentifier{
 				Address: c.Param("address"),
 			},
@@ -166,7 +166,7 @@ func renderAccountBalance(c *gin.Context) {
 	}
 
 	data := gin.H{
-		"network": netId,
+		"network": netID,
 		"balance": balance,
 	}
 
