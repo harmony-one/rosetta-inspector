@@ -1,0 +1,60 @@
+{{ template "header.html" }}
+
+<h1>{{ .identifier.Blockchain }} - {{ .identifier.Network }}</h1>
+
+<div class="card">
+  <div class="card-header">Current Block</div>
+  <div class="card-body">
+    {{ with .status.CurrentBlockIdentifier }}
+      <div>Hash: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
+      <div>Index: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+    {{ end }}
+  </div>
+</div>
+
+<br/>
+
+<div class="card">
+  <div class="card-header">Oldest Block</div>
+  <div class="card-body">
+    {{ if .status.OldestBlockIdentifier }}
+      {{ with .status.OldestBlockIdentifier }}
+        <div>Hash: {{ .Hash }}</div>
+        <div>Index: {{ .Index }}</div>
+      {{ end }}
+    {{ else }}
+      <div>No oldest block info available</div>
+    {{ end }}
+  </div>
+</div>
+
+<br/>
+
+<div class="card">
+  <div class="card-header">Genesis Block</div>
+  <div class="card-body">
+    {{ with .status.GenesisBlockIdentifier }}
+      <div>Hash: {{ .Hash }}</div>
+      <div>Index: {{ .Index }}</div>
+    {{ end }}
+  </div>
+</div>
+
+<br/>
+
+<h2>Peers</h2>
+<p>Total of {{ len .status.Peers }} peers found</p>
+
+{{ range .status.Peers }}
+  <div class="card">
+    <div class="card-header">{{ .PeerID }}</div>
+    <div class="card-body">
+      {{ range $key, $value := .Metadata }}
+        <div class="small">{{ $key }} = {{ $value }}</div>
+      {{ end }}
+    </div>
+  </div>
+  <br/>
+{{ end }}
+
+{{ template "footer.html" }}

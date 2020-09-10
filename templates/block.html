@@ -1,0 +1,84 @@
+{{ template "header.html" }}
+
+<h1>{{ .network.Blockchain }} - {{ .network.Network }}</h1>
+
+<h3>Block</h3>
+<div class="card">
+  <div class="card-body">
+    <h4>Details</h4>
+
+    {{ with .block.BlockIdentifier }}
+      <div>Hash: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
+      <div>Index: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+    {{ end }}
+
+    <div>Timestamp: {{ .block.Timestamp }} </div>
+
+    {{ if .block.ParentBlockIdentifier }}
+      <hr/>
+      <h4>Parent Block</h4>
+      {{ with .block.ParentBlockIdentifier }}
+        <div>Hash: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
+        <div>Index: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+      {{ end }}
+    {{ else }}
+      <div>No parent block</div>
+    {{ end }}
+
+    <hr/>
+    <h4>Metadata</h4>
+    {{ if len .block.Metadata }}
+      {{ range $key, $value := .block.Metadata }}
+        <div>{{ $key }} = {{ $value }}</div>
+      {{ end }}
+    {{ else }}
+      <p>No metadata available</p>
+    {{ end }}
+  </div>
+</div>
+<br/>
+
+<h3>Transactions</h3>
+
+{{ range .block.Transactions }}
+  <div class="card">
+    <div class="card-header">
+      {{ .TransactionIdentifier.Hash }}
+    </div>
+    <div class="card-body">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Idx</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Account</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Operations }}
+          <tr>
+            <td>{{ .OperationIdentifier.Index }}</td>
+            <td>{{ .Status }}</td>
+            <td>{{ .Type }}</td>
+            <td>{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}</td>
+            <td>{{ .Account.Address }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+
+      {{ if len .Metadata }}
+        <h5>Metadata</h5>
+        {{ range $key, $value := .Metadata }}
+          <div class="small">{{ $key }} = {{ $value }}</div>
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+  <br/>
+{{ end }}
+
+
+{{ template "footer.html" }}
