@@ -1,13 +1,12 @@
 {{ template "header.html" }}
 
-<h1>Rosetta Networks</h1>
+<h1>Available Networks</h1>
 
 {{ range .networks }}
   <div class="card card-body">
     <a href="/{{ .Blockchain }}/{{ .Network }}">{{ .Blockchain }} / {{ .Network }}</a>
   </div>
-  <br/>
+  <br />
 {{ end }}
-
 
 {{ template "footer.html" }}

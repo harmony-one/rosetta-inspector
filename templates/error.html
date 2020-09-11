@@ -1,0 +1,23 @@
+{{ template "header.html" }}
+
+<h1>Ooops, something went wrong!</h1>
+
+{{ if .rosettaError }}
+  {{ with .rosettaError }}
+    <div class="alert alert-danger">
+      <strong>Rosetta Error</strong><br/>
+      Code: {{ .Code }}<br/>
+      Message: {{ .Message }}<br/>
+      Retriable: {{ .Retriable }}<br/>
+      Details: {{ .Details }}
+    </div>
+  {{ end }}
+{{ else }}
+  {{ if .error }}
+    <div class="alert alert-danger">
+      <strong>Error:</strong> {{ .error }}
+    </div>
+  {{ end }}
+{{ end }}
+
+{{ template "footer.html" }}

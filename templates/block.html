@@ -40,6 +40,18 @@
 
 <h3>Transactions</h3>
 
+{{ if .rosettaError }}
+  <div class="alert alert-danger">
+    {{ .rosettaError }}
+  </div>
+{{ end }}
+
+{{ if .error }}
+<div class="alert alert-danger">
+  {{ .error }}
+</div>
+{{ end }}
+
 {{ range .block.Transactions }}
   <div class="card">
     <div class="card-header">
@@ -63,7 +75,13 @@
             <td>{{ .Status }}</td>
             <td>{{ .Type }}</td>
             <td>{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}</td>
-            <td><a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a></td>
+            <td>
+              {{ if .Account }}
+                <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>
+              {{ else }}
+                <span class="text-muted">N/A</span>
+              {{ end }}
+            </td>
           </tr>
           {{ end }}
         </tbody>

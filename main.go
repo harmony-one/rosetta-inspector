@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
@@ -58,68 +57,74 @@ func initClient() *client.APIClient {
 	return client.NewAPIClient(clientCfg)
 }
 
-func renderHome(c *gin.Context) {
-	client := c.MustGet("client").(*client.APIClient)
+func getClient(c *gin.Context) *client.APIClient {
+	return c.MustGet("client").(*client.APIClient)
+}
 
-	networkList, rosettaErr, err := client.NetworkAPI.NetworkList(
+func getNetworkID(c *gin.Context) *types.NetworkIdentifier {
+	return &types.NetworkIdentifier{
+		Blockchain: c.Param("blockchain"),
+		Network:    c.Param("network"),
+	}
+}
+
+func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
+	c.HTML(400, "error.html", gin.H{
+		"rosettaError": rosettaErr,
+		"error":        err,
+	})
+}
+
+func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
+	if rosettaErr != nil || err != nil {
+		renderError(c, rosettaErr, err)
+		return true
+	}
+	return false
+}
+
+func renderHome(c *gin.Context) {
+	resp, rosettaErr, err := getClient(c).NetworkAPI.NetworkList(
 		context.Background(),
 		&types.MetadataRequest{},
 	)
-	if rosettaErr != nil {
-		log.Printf("Rosetta Error: %+v\n", rosettaErr)
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if len(networkList.NetworkIdentifiers) == 0 {
-		log.Fatal("no available networks")
+	if shouldAbort(c, rosettaErr, err) {
+		return
 	}
 
 	c.HTML(200, "index.html", gin.H{
-		"networks": networkList.NetworkIdentifiers,
+		"networks": resp.NetworkIdentifiers,
 	})
 }
 
 func renderNetwork(c *gin.Context) {
-	client := c.MustGet("client").(*client.APIClient)
-
-	identifier := &types.NetworkIdentifier{
-		Blockchain: c.Param("blockchain"),
-		Network:    c.Param("network"),
-	}
+	client := getClient(c)
+	netID := getNetworkID(c)
 
 	networkStatus, rosettaErr, err := client.NetworkAPI.NetworkStatus(
 		context.Background(),
 		&types.NetworkRequest{
-			NetworkIdentifier: identifier,
+			NetworkIdentifier: getNetworkID(c),
 		},
 	)
-	if rosettaErr != nil {
-		log.Printf("Rosetta Error: %+v\n", rosettaErr)
-	}
-	if err != nil {
-		log.Fatal(err)
+	if shouldAbort(c, rosettaErr, err) {
+		return
 	}
 
 	c.HTML(200, "network.html", gin.H{
-		"identifier": identifier,
+		"identifier": netID,
 		"status":     networkStatus,
 	})
 }
 
 func renderBlock(c *gin.Context) {
-	client := c.MustGet("client").(*client.APIClient)
-
-	netID := &types.NetworkIdentifier{
-		Blockchain: c.Param("blockchain"),
-		Network:    c.Param("network"),
-	}
-
+	client := getClient(c)
+	netID := getNetworkID(c)
 	blockID := &types.PartialBlockIdentifier{}
 
+	// Parse out the block identifier
 	id := c.Param("id")
-	if strings.Contains(id, "0x") {
+	if len(id) > 16 {
 		blockID.Hash = &id
 	} else {
 		var index int64
@@ -127,32 +132,29 @@ func renderBlock(c *gin.Context) {
 		blockID.Index = &index
 	}
 
-	block, _, err := client.BlockAPI.Block(
+	blockResp, rosettaErr, err := client.BlockAPI.Block(
 		context.Background(),
 		&types.BlockRequest{
 			NetworkIdentifier: netID,
 			BlockIdentifier:   blockID,
 		},
 	)
-	if err != nil {
-		log.Fatal(err)
+	if shouldAbort(c, rosettaErr, err) {
+		return
 	}
 
 	c.HTML(200, "block.html", gin.H{
-		"network": netID,
-		"block":   block.Block,
+		"network":           netID,
+		"block":             blockResp.Block,
+		"otherTransactions": blockResp.OtherTransactions,
 	})
 }
 
 func renderAccountBalance(c *gin.Context) {
-	client := c.MustGet("client").(*client.APIClient)
+	client := getClient(c)
+	netID := getNetworkID(c)
 
-	netID := &types.NetworkIdentifier{
-		Blockchain: c.Param("blockchain"),
-		Network:    c.Param("network"),
-	}
-
-	balance, _, err := client.AccountAPI.AccountBalance(
+	balanceResp, rosettaErr, err := client.AccountAPI.AccountBalance(
 		context.Background(),
 		&types.AccountBalanceRequest{
 			NetworkIdentifier: netID,
@@ -161,19 +163,12 @@ func renderAccountBalance(c *gin.Context) {
 			},
 		},
 	)
-	if err != nil {
-		log.Fatal(err)
+	if shouldAbort(c, rosettaErr, err) {
+		return
 	}
 
-	data := gin.H{
+	c.HTML(200, "account.html", gin.H{
 		"network": netID,
-		"balance": balance,
-	}
-
-	switch c.NegotiateFormat(gin.MIMEHTML, gin.MIMEJSON) {
-	case gin.MIMEHTML:
-		c.HTML(200, "account.html", data)
-	case gin.MIMEJSON:
-		c.JSON(200, data)
-	}
+		"balance": balanceResp,
+	})
 }
