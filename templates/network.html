@@ -90,7 +90,7 @@
 
 <br/>
 
-<h2>Block Info</h2>
+<h2>Status</h2>
 
 <div class="card">
   <div class="card-header">Current Block</div>
@@ -98,6 +98,12 @@
     {{ with .status.CurrentBlockIdentifier }}
       <div>Hash: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
       <div>Index: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+    {{ end }}
+    {{ with .status.SyncStatus }}
+      <div>
+        Sync Status: {{ .Stage }}
+        <span class="small text-muted">(current={{ .CurrentIndex }}, target: {{ .TargetIndex }})</span>
+      </div>
     {{ end }}
   </div>
 </div>
