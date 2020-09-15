@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
@@ -27,6 +28,9 @@ func init() {
 	if opts.serverURL == "" {
 		log.Fatal("please provide rosetta server url")
 	}
+
+	// make sure to remote trailing slashes
+	opts.serverURL = strings.TrimSuffix(opts.serverURL, "/")
 }
 
 func main() {
@@ -88,6 +92,7 @@ func renderHome(c *gin.Context) {
 		context.Background(),
 		&types.MetadataRequest{},
 	)
+
 	if shouldAbort(c, rosettaErr, err) {
 		return
 	}
