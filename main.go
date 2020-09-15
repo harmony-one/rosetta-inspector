@@ -116,9 +116,20 @@ func renderNetwork(c *gin.Context) {
 		return
 	}
 
+	networkOptions, rosettaErr, err := client.NetworkAPI.NetworkOptions(
+		context.Background(),
+		&types.NetworkRequest{
+			NetworkIdentifier: getNetworkID(c),
+		},
+	)
+	if shouldAbort(c, rosettaErr, err) {
+		return
+	}
+
 	c.HTML(200, "network.html", gin.H{
 		"identifier": netID,
 		"status":     networkStatus,
+		"options":    networkOptions,
 	})
 }
 
