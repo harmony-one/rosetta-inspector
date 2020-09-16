@@ -1,0 +1,56 @@
+{{ template "header.html" . }}
+
+<h3>Transaction</h3>
+<div class="card">
+  <div class="card-body">
+    <h4>Details</h4>
+    <div>Block Number: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Index }}">{{ .block.Index }} </a></div>
+    <div>Block Hash: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Hash }}">{{ .block.Hash }} </a></div>
+    <div>Tx Hash: {{ .tx.TransactionIdentifier.Hash }}</div>
+    <br/>
+
+    <h4>Metadata</h4>
+    {{ if .tx.Metadata }}
+      {{ if len .tx.Metadata }}
+        {{ range $key, $value := .tx.Metadata }}
+          <div class="small">{{ $key }} = {{ $value }}</div>
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
+<br/>
+
+<h3>Operations</h3>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Idx</th>
+      <th>Status</th>
+      <th>Type</th>
+      <th>Amount</th>
+      <th>Account</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ range .tx.Operations }}
+    <tr>
+      <td>{{ .OperationIdentifier.Index }}</td>
+      <td>{{ .Status }}</td>
+      <td>{{ .Type }}</td>
+      <td>{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}</td>
+      <td>
+        {{ if .Account }}
+        <a
+          href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>
+        {{ else }}
+        <span class="text-muted">N/A</span>
+        {{ end }}
+      </td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+
+{{ template "footer.html" }}

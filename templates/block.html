@@ -38,22 +38,12 @@
 
 <h3>Transactions</h3>
 
-{{ if .rosettaError }}
-  <div class="alert alert-danger">
-    {{ .rosettaError }}
-  </div>
-{{ end }}
-
-{{ if .error }}
-<div class="alert alert-danger">
-  {{ .error }}
-</div>
-{{ end }}
-
 {{ range .block.Transactions }}
   <div class="card">
     <div class="card-header">
-      {{ .TransactionIdentifier.Hash }}
+      <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ $.block.BlockIdentifier.Hash }}/tx/{{ .TransactionIdentifier.Hash }}">
+        {{ .TransactionIdentifier.Hash }}
+      </a>
     </div>
     <div class="card-body">
       <table class="table table-bordered">
