@@ -126,9 +126,9 @@ func renderNetwork(c *gin.Context) {
 	}
 
 	c.HTML(200, "network.html", gin.H{
-		"identifier": netID,
-		"status":     networkStatus,
-		"options":    networkOptions,
+		"network": netID,
+		"status":  networkStatus,
+		"options": networkOptions,
 	})
 }
 

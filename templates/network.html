@@ -1,6 +1,4 @@
-{{ template "header.html" }}
-
-<h1>{{ .identifier.Blockchain }} - {{ .identifier.Network }}</h1>
+{{ template "header.html" . }}
 
 {{ with .options }}
   <h2>Network Information</h2>
@@ -96,8 +94,8 @@
   <div class="card-header">Current Block</div>
   <div class="card-body">
     {{ with .status.CurrentBlockIdentifier }}
-      <div>Hash: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
-      <div>Index: <a href="/{{ $.identifier.Blockchain }}/{{ $.identifier.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
+      <div>Hash: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Hash }}">{{ .Hash }}</a></div>
+      <div>Index: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
     {{ end }}
     {{ with .status.SyncStatus }}
       <div>
