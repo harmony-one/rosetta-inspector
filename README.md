@@ -1,4 +1,4 @@
-# rosetta-inspect
+# rosetta-inspector
 
 Rosetta server implementation inspector
 
