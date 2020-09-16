@@ -29,7 +29,7 @@ func init() {
 		log.Fatal("please provide rosetta server url")
 	}
 
-	// make sure to remote trailing slashes
+	// make sure to remove trailing slashes
 	opts.serverURL = strings.TrimSuffix(opts.serverURL, "/")
 }
 
@@ -52,7 +52,7 @@ func main() {
 func initClient() *client.APIClient {
 	clientCfg := client.NewConfiguration(
 		opts.serverURL,
-		"rosetta-go-sdk",
+		"rosetta-inspector",
 		&http.Client{
 			Timeout: time.Second * 10,
 		},
@@ -72,13 +72,6 @@ func getNetworkID(c *gin.Context) *types.NetworkIdentifier {
 	}
 }
 
-func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
-	c.HTML(400, "error.html", gin.H{
-		"rosettaError": rosettaErr,
-		"error":        err,
-	})
-}
-
 func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
 	if rosettaErr != nil || err != nil {
 		renderError(c, rosettaErr, err)
@@ -87,12 +80,18 @@ func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
 	return false
 }
 
+func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
+	c.HTML(400, "error.html", gin.H{
+		"rosettaError": rosettaErr,
+		"error":        err,
+	})
+}
+
 func renderHome(c *gin.Context) {
 	resp, rosettaErr, err := getClient(c).NetworkAPI.NetworkList(
 		context.Background(),
 		&types.MetadataRequest{},
 	)
-
 	if shouldAbort(c, rosettaErr, err) {
 		return
 	}
