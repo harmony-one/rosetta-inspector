@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -34,6 +35,8 @@ func init() {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
+
 	router := gin.Default()
 	router.LoadHTMLGlob("./templates/*.html")
 
@@ -47,7 +50,20 @@ func main() {
 	router.GET("/:blockchain/:network/block/:id/tx/:hash", renderBlockTransaction)
 	router.GET("/:blockchain/:network/account/:address", renderAccountBalance)
 
-	log.Fatal(router.Run(opts.listenAddr))
+	done := make(chan error)
+
+	go func() {
+		log.Println("starting server on", opts.listenAddr)
+		done <- router.Run(opts.listenAddr)
+	}()
+
+	go func() {
+		if err := exec.Command("open", "http://"+opts.listenAddr).Run(); err != nil {
+			log.Println("cant open server url:", err)
+		}
+	}()
+
+	<-done
 }
 
 func initClient() *client.APIClient {
