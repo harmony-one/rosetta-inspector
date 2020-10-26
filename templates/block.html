@@ -62,7 +62,7 @@
             <td>{{ .OperationIdentifier.Index }}</td>
             <td>{{ .Status }}</td>
             <td>{{ .Type }}</td>
-            <td>{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}</td>
+            <td>{{ if .Amount }}{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}{{ end }}</td>
             <td>
               {{ if .Account }}
                 <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>

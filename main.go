@@ -109,6 +109,7 @@ func renderHome(c *gin.Context) {
 		context.Background(),
 		&types.MetadataRequest{},
 	)
+
 	if shouldAbort(c, rosettaErr, err) {
 		return
 	}
