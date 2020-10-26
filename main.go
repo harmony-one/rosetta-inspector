@@ -4,15 +4,22 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
 	"github.com/coinbase/rosetta-sdk-go/types"
+
 	"github.com/gin-gonic/gin"
+	"github.com/jessevdk/go-assets"
+
+	"github.com/figment-networks/rosetta-inspector/static"
 )
 
 var opts struct {
@@ -38,7 +45,12 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
-	router.LoadHTMLGlob("./templates/*.html")
+
+	tpl, err := loadTemplate(static.Assets)
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.SetHTMLTemplate(tpl)
 
 	router.Use(func(c *gin.Context) {
 		c.Set("client", initClient())
@@ -64,6 +76,37 @@ func main() {
 	}()
 
 	<-done
+}
+
+func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
+	funcmap := template.FuncMap{
+		"time": func(input interface{}) string {
+			switch input.(type) {
+			case time.Time:
+				return input.(time.Time).Format(time.RFC822)
+			default:
+				return "invalid-value"
+			}
+		},
+	}
+
+	t := template.New("").Funcs(funcmap)
+
+	for name, file := range fs.Files {
+		shortname := filepath.Base(name)
+		if file.IsDir() || !strings.HasSuffix(shortname, ".html") {
+			continue
+		}
+		h, err := ioutil.ReadAll(file)
+		if err != nil {
+			return nil, err
+		}
+		t, err = t.New(shortname).Parse(string(h))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
 }
 
 func initClient() *client.APIClient {
