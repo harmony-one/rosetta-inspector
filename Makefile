@@ -1,4 +1,4 @@
-.PHONY: build test assets install setup docker-build
+.PHONY: build test assets install setup dist docker-build
 
 PROJECT      ?= rosetta-inspector
 GIT_COMMIT   ?= $(shell git rev-parse HEAD)
@@ -20,6 +20,13 @@ test:
 
 install:
 	go install
+
+dist:
+	@mkdir -p ./dist
+	@rm -rf ./dist/*
+	GOOS=linux   GOARCH=amd64 go build -o ./dist/rosetta-inspector-linux-amd64
+	GOOS=darwin  GOARCH=amd64 go build -o ./dist/rosetta-inspector-darwin-amd64
+	GOOS=windows GOARCH=amd64 go build -o ./dist/rosetta-inspector-windows-amd64
 
 docker-build:
 	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile .

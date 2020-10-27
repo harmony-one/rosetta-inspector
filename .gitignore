@@ -1,3 +1,4 @@
 rosetta-inspector
 .DS_Store
 static/*.go
+dist/

@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -68,20 +67,9 @@ func main() {
 	router.GET("/:blockchain/:network/block/:id/tx/:hash", renderBlockTransaction)
 	router.GET("/:blockchain/:network/account/:address", renderAccountBalance)
 
-	done := make(chan error)
-
-	go func() {
-		log.Println("starting server on", opts.listenAddr)
-		done <- router.Run(opts.listenAddr)
-	}()
-
-	go func() {
-		if err := exec.Command("open", "http://"+opts.listenAddr).Run(); err != nil {
-			log.Println("cant open server url:", err)
-		}
-	}()
-
-	<-done
+	if err := router.Run(opts.listenAddr); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
