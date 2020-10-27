@@ -1,6 +1,6 @@
 module github.com/figment-networks/rosetta-inspector
 
-go 1.14
+go 1.15
 
 require (
 	github.com/coinbase/rosetta-sdk-go v0.4.0
