@@ -15,23 +15,31 @@ import (
 
 	"github.com/coinbase/rosetta-sdk-go/client"
 	"github.com/coinbase/rosetta-sdk-go/types"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jessevdk/go-assets"
 
 	"github.com/figment-networks/rosetta-inspector/static"
 )
 
+const version = "0.1.0"
+
 var opts struct {
 	serverURL  string
 	agent      string
 	listenAddr string
+	version    bool
 }
 
-func init() {
+func main() {
 	flag.StringVar(&opts.serverURL, "url", "", "Rosetta server URL")
 	flag.StringVar(&opts.listenAddr, "listen", "0.0.0.0:5555", "Listen address")
+	flag.BoolVar(&opts.version, "v", false, "Show version")
 	flag.Parse()
+
+	if opts.version {
+		fmt.Println(version)
+		return
+	}
 
 	if opts.serverURL == "" {
 		log.Fatal("please provide rosetta server url")
@@ -39,9 +47,7 @@ func init() {
 
 	// make sure to remove trailing slashes
 	opts.serverURL = strings.TrimSuffix(opts.serverURL, "/")
-}
 
-func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
