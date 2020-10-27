@@ -6,7 +6,7 @@ Rosetta server implementation inspector
 
 ### Binary
 
-Not available yet
+Download a binary release from [Github](https://github.com/figment-networks/rosetta-inspector/releases)
 
 ### Go
 
@@ -15,6 +15,22 @@ If you have Go available on your machine you can install the inspector with:
 ```bash
 go get github.com/figment-networks/rosetta-inspector
 ```
+
+### Docker
+
+Pull the image:
+
+```bash
+docker pull figmentnetworks/rosetta-inspector
+```
+
+Start the inspector container:
+
+```bash
+docker run -p 5555:5555 figmentnetworks/rosetta-inspector -url=http://rosetta-server:port
+```
+
+You should be able to view the UI by visiting http://localhost:5555
 
 ## Usage
 
