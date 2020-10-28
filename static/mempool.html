@@ -1,0 +1,10 @@
+{{ template "header.html" . }}
+
+<h2>Mempool</h2>
+<p>Total of {{ len .mempool }} records found</p>
+
+{{ range .mempool }}
+  <div>{{ .Hash }}</div>
+{{ end }}
+
+{{ template "footer.html" }}

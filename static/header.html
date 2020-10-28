@@ -14,8 +14,11 @@
         {{ if .network }}
           <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
+              <li class="nav-item">
                 <a class="nav-link" href="/{{ .network.Blockchain }}/{{ .network.Network }}">Info</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/{{ .network.Blockchain }}/{{ .network.Network }}/peers">Peers</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/{{ .network.Blockchain }}/{{ .network.Network }}/mempool">Mempool</a>

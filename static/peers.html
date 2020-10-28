@@ -1,0 +1,18 @@
+{{ template "header.html" . }}
+
+<h2>Peers</h2>
+<p>Total of {{ len .peers }} peers found</p>
+
+{{ range .peers }}
+  <div class="card">
+    <div class="card-header">{{ .PeerID }}</div>
+    <div class="card-body">
+      {{ range $key, $value := .Metadata }}
+        <div class="small">{{ $key }} = {{ $value }}</div>
+      {{ end }}
+    </div>
+  </div>
+  <br/>
+{{ end }}
+
+{{ template "footer.html" }}

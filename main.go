@@ -63,6 +63,8 @@ func main() {
 
 	router.GET("/", renderHome)
 	router.GET("/:blockchain/:network", renderNetwork)
+	router.GET("/:blockchain/:network/peers", renderPeers)
+	router.GET("/:blockchain/:network/mempool", renderMempool)
 	router.GET("/:blockchain/:network/block/:id", renderBlock)
 	router.GET("/:blockchain/:network/block/:id/tx/:hash", renderBlockTransaction)
 	router.GET("/:blockchain/:network/account/:address", renderAccountBalance)
@@ -136,6 +138,7 @@ func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
 
 func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
 	c.HTML(400, "error.html", gin.H{
+		"network":      getNetworkID(c),
 		"rosettaError": rosettaErr,
 		"error":        err,
 	})
@@ -184,6 +187,46 @@ func renderNetwork(c *gin.Context) {
 		"network": netID,
 		"status":  networkStatus,
 		"options": networkOptions,
+	})
+}
+
+func renderPeers(c *gin.Context) {
+	client := getClient(c)
+	netID := getNetworkID(c)
+
+	networkStatus, rosettaErr, err := client.NetworkAPI.NetworkStatus(
+		context.Background(),
+		&types.NetworkRequest{
+			NetworkIdentifier: getNetworkID(c),
+		},
+	)
+	if shouldAbort(c, rosettaErr, err) {
+		return
+	}
+
+	c.HTML(200, "peers.html", gin.H{
+		"network": netID,
+		"peers":   networkStatus.Peers,
+	})
+}
+
+func renderMempool(c *gin.Context) {
+	client := getClient(c)
+	netID := getNetworkID(c)
+
+	mempool, rosettaErr, err := client.MempoolAPI.Mempool(
+		context.Background(),
+		&types.NetworkRequest{
+			NetworkIdentifier: getNetworkID(c),
+		},
+	)
+	if shouldAbort(c, rosettaErr, err) {
+		return
+	}
+
+	c.HTML(200, "mempool.html", gin.H{
+		"network": netID,
+		"mempool": mempool.TransactionIdentifiers,
 	})
 }
 

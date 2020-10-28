@@ -134,21 +134,4 @@
   </div>
 </div>
 
-<br/>
-
-<h2>Peers</h2>
-<p>Total of {{ len .status.Peers }} peers found</p>
-
-{{ range .status.Peers }}
-  <div class="card">
-    <div class="card-header">{{ .PeerID }}</div>
-    <div class="card-body">
-      {{ range $key, $value := .Metadata }}
-        <div class="small">{{ $key }} = {{ $value }}</div>
-      {{ end }}
-    </div>
-  </div>
-  <br/>
-{{ end }}
-
 {{ template "footer.html" }}
