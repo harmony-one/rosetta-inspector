@@ -86,5 +86,18 @@
   <br/>
 {{ end }}
 
+{{ if len .otherTransactions }}
+  <h3>Other Transactions</h3>
+  <p class="text-muted">List of transactions not included in the block response</p>
+  <div class="card">
+    <div class="card-body">
+      {{ range .otherTransactions }}
+        <div>
+          <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ $.block.BlockIdentifier.Hash }}/tx/{{ .Hash }}">{{ .Hash }}</a>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}
 
 {{ template "footer.html" }}
