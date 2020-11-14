@@ -5,11 +5,13 @@
 {{ if .rosettaError }}
   {{ with .rosettaError }}
     <div class="alert alert-danger">
-      <strong>Rosetta Error</strong><br/>
-      Code: {{ .Code }}<br/>
-      Message: {{ .Message }}<br/>
-      Retriable: {{ .Retriable }}<br/>
-      Details: {{ .Details }}
+      <div><strong>Rosetta Error</strong></div>
+      <div>Code: {{ .Code }}</div>
+      <div>Message: {{ .Message }}</div>
+      <div>Retriable: {{ .Retriable }}</div>
+      {{ if len .Details }}
+        <div>Details: {{ .Details }}</div>
+      {{ end }}
     </div>
   {{ end }}
 {{ else }}
