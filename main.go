@@ -1,19 +1,19 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
-	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/gin-gonic/gin"
 	"github.com/jessevdk/go-assets"
 
@@ -29,12 +29,19 @@ var opts struct {
 	version    bool
 }
 
-func main() {
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+
 	flag.StringVar(&opts.serverURL, "url", "", "Rosetta server URL")
 	flag.StringVar(&opts.listenAddr, "listen", "0.0.0.0:5555", "Listen address")
 	flag.BoolVar(&opts.version, "v", false, "Show version")
 	flag.Parse()
 
+	// make sure to remove trailing slashes
+	opts.serverURL = strings.TrimSuffix(opts.serverURL, "/")
+}
+
+func main() {
 	if opts.version {
 		fmt.Println(version)
 		return
@@ -44,24 +51,16 @@ func main() {
 		log.Fatal("please provide rosetta server url")
 	}
 
-	// make sure to remove trailing slashes
-	opts.serverURL = strings.TrimSuffix(opts.serverURL, "/")
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.Default()
-
 	tpl, err := loadTemplate(static.Assets)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	router := gin.Default()
 	router.SetHTMLTemplate(tpl)
+	router.Use(setClient(newClient(opts.serverURL)))
 
-	router.Use(func(c *gin.Context) {
-		c.Set("client", initClient())
-	})
-
-	router.GET("/", renderHome)
+	router.GET("/", renderIndex)
 	router.GET("/:blockchain/:network", renderNetwork)
 	router.GET("/:blockchain/:network/peers", renderPeers)
 	router.GET("/:blockchain/:network/mempool", renderMempool)
@@ -69,6 +68,12 @@ func main() {
 	router.GET("/:blockchain/:network/block/:id/tx/:hash", renderBlockTransaction)
 	router.GET("/:blockchain/:network/account/:address", renderAccountBalance)
 
+	go func() {
+		time.Sleep(time.Millisecond * 250)
+		openURL("http://" + opts.listenAddr)
+	}()
+
+	log.Println("starting server on", opts.listenAddr)
 	if err := router.Run(opts.listenAddr); err != nil {
 		log.Fatal(err)
 	}
@@ -105,221 +110,19 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 	return t, nil
 }
 
-func initClient() *client.APIClient {
-	clientCfg := client.NewConfiguration(
-		opts.serverURL,
+func newClient(endpoint string) *client.APIClient {
+	return client.NewAPIClient(client.NewConfiguration(
+		endpoint,
 		"rosetta-inspector",
 		&http.Client{
 			Timeout: time.Second * 10,
 		},
-	)
-
-	return client.NewAPIClient(clientCfg)
+	))
 }
 
-func getClient(c *gin.Context) *client.APIClient {
-	return c.MustGet("client").(*client.APIClient)
-}
-
-func getNetworkID(c *gin.Context) *types.NetworkIdentifier {
-	return &types.NetworkIdentifier{
-		Blockchain: c.Param("blockchain"),
-		Network:    c.Param("network"),
+func openURL(url string) {
+	switch runtime.GOOS {
+	case "darwin":
+		exec.Command("open", url).Run()
 	}
-}
-
-func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
-	if rosettaErr != nil || err != nil {
-		renderError(c, rosettaErr, err)
-		return true
-	}
-	return false
-}
-
-func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
-	c.HTML(400, "error.html", gin.H{
-		"network":      getNetworkID(c),
-		"rosettaError": rosettaErr,
-		"error":        err,
-	})
-}
-
-func renderHome(c *gin.Context) {
-	resp, rosettaErr, err := getClient(c).NetworkAPI.NetworkList(
-		context.Background(),
-		&types.MetadataRequest{},
-	)
-
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "index.html", gin.H{
-		"networks": resp.NetworkIdentifiers,
-	})
-}
-
-func renderNetwork(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-
-	networkStatus, rosettaErr, err := client.NetworkAPI.NetworkStatus(
-		context.Background(),
-		&types.NetworkRequest{
-			NetworkIdentifier: getNetworkID(c),
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	networkOptions, rosettaErr, err := client.NetworkAPI.NetworkOptions(
-		context.Background(),
-		&types.NetworkRequest{
-			NetworkIdentifier: getNetworkID(c),
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "network.html", gin.H{
-		"network": netID,
-		"status":  networkStatus,
-		"options": networkOptions,
-	})
-}
-
-func renderPeers(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-
-	networkStatus, rosettaErr, err := client.NetworkAPI.NetworkStatus(
-		context.Background(),
-		&types.NetworkRequest{
-			NetworkIdentifier: getNetworkID(c),
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "peers.html", gin.H{
-		"network": netID,
-		"peers":   networkStatus.Peers,
-	})
-}
-
-func renderMempool(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-
-	mempool, rosettaErr, err := client.MempoolAPI.Mempool(
-		context.Background(),
-		&types.NetworkRequest{
-			NetworkIdentifier: getNetworkID(c),
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "mempool.html", gin.H{
-		"network": netID,
-		"mempool": mempool.TransactionIdentifiers,
-	})
-}
-
-func renderBlock(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-	blockID := &types.PartialBlockIdentifier{}
-
-	// Parse out the block identifier
-	id := c.Param("id")
-	if len(id) > 16 {
-		blockID.Hash = &id
-	} else {
-		var index int64
-		fmt.Sscanf(id, "%d", &index)
-		blockID.Index = &index
-	}
-
-	blockResp, rosettaErr, err := client.BlockAPI.Block(
-		context.Background(),
-		&types.BlockRequest{
-			NetworkIdentifier: netID,
-			BlockIdentifier:   blockID,
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "block.html", gin.H{
-		"network":           netID,
-		"block":             blockResp.Block,
-		"otherTransactions": blockResp.OtherTransactions,
-	})
-}
-
-func renderBlockTransaction(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-
-	blockID := &types.BlockIdentifier{}
-	txID := &types.TransactionIdentifier{
-		Hash: c.Param("hash"),
-	}
-
-	// Parse out the block identifier
-	id := c.Param("id")
-	if len(id) > 16 {
-		blockID.Hash = id
-	} else {
-		var index int64
-		fmt.Sscanf(id, "%d", &index)
-		blockID.Index = index
-	}
-
-	txResp, rosettaErr, err := client.BlockAPI.BlockTransaction(
-		context.Background(),
-		&types.BlockTransactionRequest{
-			NetworkIdentifier:     netID,
-			BlockIdentifier:       blockID,
-			TransactionIdentifier: txID,
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "transaction.html", gin.H{
-		"network": netID,
-		"block":   blockID,
-		"tx":      txResp.Transaction,
-	})
-}
-
-func renderAccountBalance(c *gin.Context) {
-	client := getClient(c)
-	netID := getNetworkID(c)
-
-	balanceResp, rosettaErr, err := client.AccountAPI.AccountBalance(
-		context.Background(),
-		&types.AccountBalanceRequest{
-			NetworkIdentifier: netID,
-			AccountIdentifier: &types.AccountIdentifier{
-				Address: c.Param("address"),
-			},
-		},
-	)
-	if shouldAbort(c, rosettaErr, err) {
-		return
-	}
-
-	c.HTML(200, "account.html", gin.H{
-		"network": netID,
-		"balance": balanceResp,
-	})
 }
