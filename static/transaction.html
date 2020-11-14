@@ -4,8 +4,13 @@
 <div class="card">
   <div class="card-body">
     <h4>Details</h4>
-    <div>Block Number: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Index }}">{{ .block.Index }} </a></div>
-    <div>Block Hash: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Hash }}">{{ .block.Hash }} </a></div>
+
+    {{ if .block.Hash }}
+      <div>Block Hash: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Hash }}">{{ .block.Hash }}</a></div>
+    {{ else }}
+      <div>Block Number: <a href="/{{ .network.Blockchain }}/{{ .network.Network }}/block/{{ .block.Index }}">{{ .block.Index }}</a></div>
+    {{ end }}
+    
     <div>Tx Hash: {{ .tx.TransactionIdentifier.Hash }}</div>
     <br/>
 
