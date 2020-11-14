@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"math"
+	"strconv"
+
 	"github.com/coinbase/rosetta-sdk-go/client"
 	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/gin-gonic/gin"
@@ -37,4 +41,18 @@ func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
 		"rosettaError": rosettaErr,
 		"error":        err,
 	})
+}
+
+func formatAmount(amount *types.Amount) string {
+	if amount == nil {
+		return "N/A"
+	}
+
+	val, err := strconv.ParseInt(amount.Value, 10, 64)
+	if err != nil {
+		return "invalid value"
+	}
+	result := float64(val) / math.Pow10(int(amount.Currency.Decimals)-1)
+
+	return fmt.Sprintf("%.8f %v", result, amount.Currency.Symbol)
 }

@@ -44,13 +44,12 @@
       <td>{{ .OperationIdentifier.Index }}</td>
       <td>{{ .Status }}</td>
       <td>{{ .Type }}</td>
-      <td>{{ if .Amount }}{{ .Amount.Value }} {{ .Amount.Currency.Symbol }}{{ end }}</td>
+      <td>{{ amount .Amount }}</td>
       <td>
         {{ if .Account }}
-        <a
-          href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>
+          <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>
         {{ else }}
-        <span class="text-muted">N/A</span>
+          <span class="text-muted">N/A</span>
         {{ end }}
       </td>
     </tr>

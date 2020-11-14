@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
+	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/gin-gonic/gin"
 	"github.com/jessevdk/go-assets"
 
@@ -88,6 +89,9 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 			default:
 				return "invalid-value"
 			}
+		},
+		"amount": func(input *types.Amount) string {
+			return formatAmount(input)
 		},
 	}
 
