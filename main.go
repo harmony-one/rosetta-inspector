@@ -84,11 +84,13 @@ func main() {
 func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 	funcmap := template.FuncMap{
 		"time": func(input interface{}) string {
-			switch input.(type) {
+			switch val := input.(type) {
 			case time.Time:
-				return input.(time.Time).Format(time.RFC822)
+				return val.Format(time.RFC822)
+			case int64:
+				return time.Unix(0, val*1000000).Format(time.RFC822)
 			default:
-				return "invalid-value"
+				return fmt.Sprintf("%v", val)
 			}
 		},
 		"amount": func(input *types.Amount) string {

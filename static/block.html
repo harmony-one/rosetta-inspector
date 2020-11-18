@@ -10,7 +10,7 @@
       <div>Index: <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ .Index }}">{{ .Index }}</a></div>
     {{ end }}
 
-    <div>Timestamp: {{ .block.Timestamp }} </div>
+    <div>Timestamp: {{ time .block.Timestamp }} </div>
 
     {{ if .block.ParentBlockIdentifier }}
       <hr/>
