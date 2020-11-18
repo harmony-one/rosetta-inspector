@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
-	"strconv"
+	"math/big"
 
 	"github.com/coinbase/rosetta-sdk-go/client"
 	"github.com/coinbase/rosetta-sdk-go/types"
@@ -48,11 +48,14 @@ func formatAmount(amount *types.Amount) string {
 		return "N/A"
 	}
 
-	val, err := strconv.ParseInt(amount.Value, 10, 64)
-	if err != nil {
+	n := big.Float{}
+	val, ok := n.SetString(amount.Value)
+	if !ok {
 		return "invalid value"
 	}
-	result := float64(val) / math.Pow10(int(amount.Currency.Decimals)-1)
+
+	d := big.NewFloat(math.Pow10(int(amount.Currency.Decimals)))
+	result := new(big.Float).Quo(val, d)
 
 	return fmt.Sprintf("%.8f %v", result, amount.Currency.Symbol)
 }

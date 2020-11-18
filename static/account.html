@@ -5,8 +5,8 @@
   <div class="card-body">
     <h4>Balances</h4>
     <ul>
-      {{ range .balance.Balances }}
-        <li>{{ .Value }} {{ .Currency.Symbol }}</li>
+      {{ range $b := .balance.Balances }}
+        <li>{{ amount $b }}</li>
       {{ end }}
     </ul>
 
