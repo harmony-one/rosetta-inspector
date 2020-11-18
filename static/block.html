@@ -77,9 +77,7 @@
 
       {{ if len .Metadata }}
         <h5>Metadata</h5>
-        {{ range $key, $value := .Metadata }}
-          <div class="small">{{ $key }} = {{ $value }}</div>
-        {{ end }}
+        <pre class="small">{{ json .Metadata }}</pre>
       {{ end }}
     </div>
   </div>

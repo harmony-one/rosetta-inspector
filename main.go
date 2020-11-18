@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -92,6 +93,13 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 		},
 		"amount": func(input *types.Amount) string {
 			return formatAmount(input)
+		},
+		"json": func(input interface{}) string {
+			data, err := json.MarshalIndent(input, "", "  ")
+			if err != nil {
+				return "invalid json:" + err.Error()
+			}
+			return string(data)
 		},
 	}
 
