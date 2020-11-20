@@ -77,7 +77,8 @@
 
       {{ if len .Metadata }}
         <h5>Metadata</h5>
-        <pre class="small">{{ json .Metadata }}</pre>
+        <a href="#" class="btn btn-secondary btn-sm tx-meta-toggle" data-tx="{{ .TransactionIdentifier.Hash }}">Show metadata</a>
+        <pre class="small" data-tx="{{ .TransactionIdentifier.Hash }}" style="display: none;">{{ json .Metadata }}</pre>
       {{ end }}
     </div>
   </div>
