@@ -93,7 +93,7 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 				return fmt.Sprintf("%v", val)
 			}
 		},
-		"amount": func(input *types.Amount) string {
+		"amount": func(input *types.Amount) template.HTML {
 			return formatAmount(input)
 		},
 		"json": func(input interface{}) string {

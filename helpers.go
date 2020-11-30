@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"math"
 	"math/big"
 
@@ -62,7 +63,7 @@ func renderError(c *gin.Context, rosettaErr *types.Error, err error) {
 	})
 }
 
-func formatAmount(amount *types.Amount) string {
+func formatAmount(amount *types.Amount) template.HTML {
 	if amount == nil {
 		return "N/A"
 	}
@@ -76,5 +77,11 @@ func formatAmount(amount *types.Amount) string {
 	d := big.NewFloat(math.Pow10(int(amount.Currency.Decimals)))
 	result := new(big.Float).Quo(val, d)
 
-	return fmt.Sprintf("%.8f %v", result, amount.Currency.Symbol)
+	content := fmt.Sprintf(`<span title="%v">%.8f %v</span>`,
+		amount.Value,
+		result,
+		amount.Currency.Symbol,
+	)
+
+	return template.HTML(content)
 }
