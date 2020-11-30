@@ -10,11 +10,13 @@ import (
 func renderAccountBalance(c *gin.Context) {
 	client := getClient(c)
 	netID := getNetworkID(c)
+	blockID := getBlockID(c)
 
 	balanceResp, rosettaErr, err := client.AccountAPI.AccountBalance(
 		context.Background(),
 		&types.AccountBalanceRequest{
 			NetworkIdentifier: netID,
+			BlockIdentifier:   blockID,
 			AccountIdentifier: &types.AccountIdentifier{
 				Address: c.Param("address"),
 			},
@@ -26,6 +28,7 @@ func renderAccountBalance(c *gin.Context) {
 
 	c.HTML(200, "account.html", gin.H{
 		"network": netID,
+		"block":   blockID,
 		"balance": balanceResp,
 	})
 }

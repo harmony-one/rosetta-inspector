@@ -27,6 +27,25 @@ func getNetworkID(c *gin.Context) *types.NetworkIdentifier {
 	}
 }
 
+func getBlockID(c *gin.Context) *types.PartialBlockIdentifier {
+	var blockID *types.PartialBlockIdentifier
+
+	if number := c.Query("block_number"); number != "" {
+		blockID = &types.PartialBlockIdentifier{}
+		var index int64
+		fmt.Sscanf(number, "%d", &index)
+		blockID.Index = &index
+		return blockID
+	}
+
+	if hash := c.Query("block_hash"); hash != "" {
+		blockID = &types.PartialBlockIdentifier{}
+		blockID.Hash = &hash
+	}
+
+	return blockID
+}
+
 func shouldAbort(c *gin.Context, rosettaErr *types.Error, err error) bool {
 	if rosettaErr != nil || err != nil {
 		renderError(c, rosettaErr, err)
