@@ -65,7 +65,7 @@
             <td>{{ amount .Amount }}</td>
             <td>
               {{ if .Account }}
-                <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}">{{ .Account.Address }}</a>
+                <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}?block_number={{ $.block.BlockIdentifier.Index }}">{{ .Account.Address }}</a>
               {{ else }}
                 <span class="text-muted">N/A</span>
               {{ end }}
