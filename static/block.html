@@ -38,51 +38,55 @@
 
 <h3>Transactions</h3>
 
-{{ range .block.Transactions }}
-  <div class="card">
-    <div class="card-header">
-      <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ $.block.BlockIdentifier.Hash }}/tx/{{ .TransactionIdentifier.Hash }}">
-        {{ .TransactionIdentifier.Hash }}
-      </a>
-    </div>
-    <div class="card-body">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Idx</th>
-            <th>Status</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Account</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{ range .Operations }}
-          <tr>
-            <td>{{ .OperationIdentifier.Index }}</td>
-            <td>{{ .Status }}</td>
-            <td>{{ .Type }}</td>
-            <td>{{ amount .Amount }}</td>
-            <td>
-              {{ if .Account }}
-                <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}?block_number={{ $.block.BlockIdentifier.Index }}">{{ .Account.Address }}</a>
-              {{ else }}
-                <span class="text-muted">N/A</span>
-              {{ end }}
-            </td>
-          </tr>
-          {{ end }}
-        </tbody>
-      </table>
+{{ if len .block.Transactions }}
+  {{ range .block.Transactions }}
+    <div class="card">
+      <div class="card-header">
+        <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/block/{{ $.block.BlockIdentifier.Hash }}/tx/{{ .TransactionIdentifier.Hash }}">
+          {{ .TransactionIdentifier.Hash }}
+        </a>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Idx</th>
+              <th>Status</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Account</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Operations }}
+            <tr>
+              <td>{{ .OperationIdentifier.Index }}</td>
+              <td>{{ .Status }}</td>
+              <td>{{ .Type }}</td>
+              <td>{{ amount .Amount }}</td>
+              <td>
+                {{ if .Account }}
+                  <a href="/{{ $.network.Blockchain }}/{{ $.network.Network }}/account/{{ .Account.Address }}?block_number={{ $.block.BlockIdentifier.Index }}">{{ .Account.Address }}</a>
+                {{ else }}
+                  <span class="text-muted">N/A</span>
+                {{ end }}
+              </td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
 
-      {{ if len .Metadata }}
-        <h5>Metadata</h5>
-        <a href="#" class="btn btn-secondary btn-sm tx-meta-toggle" data-tx="{{ .TransactionIdentifier.Hash }}">Show metadata</a>
-        <pre class="small" data-tx="{{ .TransactionIdentifier.Hash }}" style="display: none;">{{ json .Metadata }}</pre>
-      {{ end }}
+        {{ if len .Metadata }}
+          <h5>Metadata</h5>
+          <a href="#" class="btn btn-secondary btn-sm tx-meta-toggle" data-tx="{{ .TransactionIdentifier.Hash }}">Show metadata</a>
+          <pre class="small" data-tx="{{ .TransactionIdentifier.Hash }}" style="display: none;">{{ json .Metadata }}</pre>
+        {{ end }}
+      </div>
     </div>
-  </div>
-  <br/>
+    <br/>
+  {{ end }}
+{{ else }}
+  <p class="text-muted">There are no transactions in this block.</p>
 {{ end }}
 
 {{ if len .otherTransactions }}
