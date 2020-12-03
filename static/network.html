@@ -39,6 +39,15 @@
       <hr/>
 
       {{ with .Allow }}
+        <div>
+          <span>Historical Balance Lookup:</span>
+          <span>{{ .HistoricalBalanceLookup }}</span>
+        </div>
+        <div>
+          <span>Mempool Coins:</span>
+          <span>{{ .MempoolCoins }}</span>
+        </div>
+        <hr/>
         <div class="row">
           <div class="col-md-4">
             <strong>Operation Types</strong>
@@ -50,6 +59,12 @@
             <strong>Operation Statuses</strong>
             {{ range .OperationStatuses }}
               <div>{{ .Status }} <span class="small text-muted">success={{ .Successful }}</span></div>
+            {{ end }}
+          </div>
+          <div class="col-md-4">
+            <strong>Call Methods</strong>
+            {{ range $name := .CallMethods }}
+              <div>{{ $name }}</div>
             {{ end }}
           </div>
         </div>
