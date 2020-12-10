@@ -3,7 +3,7 @@ module github.com/figment-networks/rosetta-inspector
 go 1.15
 
 require (
-	github.com/coinbase/rosetta-sdk-go v0.6.3
+	github.com/coinbase/rosetta-sdk-go v0.6.5
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/addlicense v0.0.0-20200817051935-6f4cd4aacc89 // indirect
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
