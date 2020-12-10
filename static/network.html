@@ -114,6 +114,9 @@
     {{ end }}
     {{ with .status.SyncStatus }}
       <div>
+        Synced: {{ if .Synced }}YES{{ else }}NO{{ end }}
+      </div>
+      <div>
         Sync Status: {{ .Stage }}
         <span class="small text-muted">(current={{ .CurrentIndex }}, target: {{ .TargetIndex }})</span>
       </div>
