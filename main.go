@@ -103,6 +103,15 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 			}
 			return string(data)
 		},
+		"synced_value": func(input *bool) string {
+			if input == nil {
+				return "N/A"
+			}
+			if *input == true {
+				return "YES"
+			}
+			return "NO"
+		},
 	}
 
 	t := template.New("").Funcs(funcmap)
