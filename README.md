@@ -36,10 +36,13 @@ You should be able to view the UI by visiting http://localhost:5555
 
 ```
 Usage of ./rosetta-inspector:
+  -client-timeout int
+    	Rosetta client timeout (default 60)
   -listen string
     	Listen address (default "0.0.0.0:5555")
   -url string
     	Rosetta server URL
+  -v	Show version
 ```
 
 When you have a Rosetta server running on `http://localhost:8080` you can start
