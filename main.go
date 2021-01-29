@@ -25,16 +25,18 @@ import (
 const version = "0.3.1"
 
 var opts struct {
-	serverURL  string
-	agent      string
-	listenAddr string
-	version    bool
+	serverURL     string
+	agent         string
+	listenAddr    string
+	clientTimeout int
+	version       bool
 }
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 
 	flag.StringVar(&opts.serverURL, "url", "", "Rosetta server URL")
+	flag.IntVar(&opts.clientTimeout, "client-timeout", 60, "Rosetta client timeout")
 	flag.StringVar(&opts.listenAddr, "listen", "0.0.0.0:5555", "Listen address")
 	flag.BoolVar(&opts.version, "v", false, "Show version")
 	flag.Parse()
@@ -60,7 +62,7 @@ func main() {
 
 	router := gin.Default()
 	router.SetHTMLTemplate(tpl)
-	router.Use(setClient(newClient(opts.serverURL)))
+	router.Use(setClient(newClient(opts.serverURL, opts.clientTimeout)))
 
 	router.GET("/", renderIndex)
 	router.GET("/:blockchain/:network", renderNetwork)
@@ -133,12 +135,12 @@ func loadTemplate(fs *assets.FileSystem) (*template.Template, error) {
 	return t, nil
 }
 
-func newClient(endpoint string) *client.APIClient {
+func newClient(endpoint string, timeout int) *client.APIClient {
 	return client.NewAPIClient(client.NewConfiguration(
 		endpoint,
 		"rosetta-inspector",
 		&http.Client{
-			Timeout: time.Second * 10,
+			Timeout: time.Second * time.Duration(timeout),
 		},
 	))
 }
