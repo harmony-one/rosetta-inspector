@@ -22,7 +22,7 @@ import (
 	"github.com/figment-networks/rosetta-inspector/static"
 )
 
-const version = "0.3.1"
+const version = "0.3.2"
 
 var opts struct {
 	serverURL     string
