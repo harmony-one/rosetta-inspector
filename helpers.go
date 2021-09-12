@@ -25,6 +25,12 @@ func getNetworkID(c *gin.Context) *types.NetworkIdentifier {
 	return &types.NetworkIdentifier{
 		Blockchain: c.Param("blockchain"),
 		Network:    c.Param("network"),
+		SubNetworkIdentifier: &types.SubNetworkIdentifier{
+			Network:  "shard 0",
+			Metadata: map[string]interface{}{
+				"is_beacon": true,
+			},
+		},
 	}
 }
 
